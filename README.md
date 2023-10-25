@@ -30,6 +30,29 @@ The primary objective of the "Sentiment-Powered News Feed" project is to revolut
 
 ## Instructions
 
+### Get your API KEY from NEWS API
+
+You will need to log in [News API](https://newsapi.org/) to get your personalised API Key. This key will be used in the Lambda function 1 to extract the news headlines.
+
+### Creation of DynamoDB Table
+
+We would need to create a DynamoDB table to store the news based on sentiment and timestamp.
+Here,
+PARTITION KEY : sentiment (String)
+SORT KEY : timestamp (String)
+
+You can refer to the DynamoDB.yml for the Clouformation script of the same.
+
+AWS CLI [command](https://docs.aws.amazon.com/cli/latest/reference/dynamodb/create-table.html) for the table creation :
+
+```
+aws dynamodb create-table \
+    --table-name news \
+    --attribute-definitions AttributeName=sentiment,AttributeType=S AttributeName=timestamp,AttributeType=S \
+    --key-schema AttributeName=sentiment,KeyType=HASH AttributeName=timestamp,KeyType=RANGE \
+    --billing-mode PAY_PER_REQUEST
+```
+
 ### Creation of the Lambda function 1
 
 This function is responsible for extracting the current news using the **NEWS API**, calls the **Amazon Comprehend** to determine the sentiments of the news and categorize them in three categories : Positive, Negative and Neutral. Finally this Lambda function stores this data in a **DynamoDB** table.
@@ -38,7 +61,15 @@ The function uses Python 3.11 runtime and calls the various AWS services using [
 
 The function code is available at [**Derive.py**](Functions/DeriveNews.py)
 
+**NOTE** : This function requires **REQUESTS** module to work. Therefore, make sure to add the Request module as a lambda Layer.
 
-### Creation of DynamoDB
+In order to save the Request Module, find refer [here](https://www.keyq.cloud/en/blog/creating-an-aws-lambda-layer-for-python-requests-module). To create a Lambda layer using the zip file, refer [here](https://docs.aws.amazon.com/lambda/latest/dg/creating-deleting-layers.html#layers-create).
+
+### Execution of the Lambda function 1
+
+**NOTE** : The Lambda function execution role requires permission for Amazon Comprehend (**comprehend:DetectSentiment**) and Amazon DynamoDB (**dynamodb:PutItem**) to perform the execution. Refer to policy.json for the inline policy required to perform these actions.
+
+This Lambda function needs to be executed on a regular basis in order to store the news headline. Hence, you can make use of the **EventBridge** to create a [rule](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-events-rule.html#cfn-events-rule-scheduleexpression) to execute the function on a scheduled time interval.
+
 ### Creation of API Gateway
 ### Creation of the Lambda function 2
