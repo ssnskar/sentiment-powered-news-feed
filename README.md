@@ -25,7 +25,7 @@ The primary objective of the "Sentiment-Powered News Feed" project is to revolut
 
 ## Deployment
 
-In order to use the application, you can create a Cloudformation stack using the [template.yaml](). In order to execute it using AWS CLI, make use of the below commands. Run the first command to launch the AWS CloudFormation template. The second command will wait, until the AWS CloudFormation stack was launched successfuly and ready to use. Alternatively, you can also open your CloudFormation console and watch the resource creation process.
+In order to use the application, you can create a Cloudformation stack using the [template.yaml](template.yaml). In order to execute it using AWS CLI, make use of the below commands. Run the first command to launch the AWS CloudFormation template. The second command will wait, until the AWS CloudFormation stack was launched successfuly and ready to use. Alternatively, you can also open your CloudFormation console and watch the resource creation process.
 
 ```
 aws cloudformation create-stack \
