@@ -38,10 +38,11 @@ You will need to log in [News API](https://newsapi.org/) to get your personalise
 
 We would need to create a DynamoDB table to store the news based on sentiment and timestamp.
 Here,
-PARTITION KEY : sentiment (String)
-SORT KEY : timestamp (String)
 
-You can refer to the DynamoDB.yml for the Clouformation script of the same.
+- PARTITION KEY : sentiment (String)
+- SORT KEY : timestamp (String)
+
+You can refer to the [DynamoDB.yml](Templates/DynamoDB.yml) for the Clouformation script of the same.
 
 AWS CLI [command](https://docs.aws.amazon.com/cli/latest/reference/dynamodb/create-table.html) for the table creation :
 
@@ -59,7 +60,7 @@ This function is responsible for extracting the current news using the **NEWS AP
 
 The function uses Python 3.11 runtime and calls the various AWS services using [**Boto3**](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html).
 
-The function code is available at [**Derive.py**](Functions/DeriveNews.py)
+The function code is available at [**here**](Functions/DeriveNews.py)
 
 **NOTE** : This function requires **REQUESTS** module to work. Therefore, make sure to add the Request module as a lambda Layer.
 
@@ -67,7 +68,7 @@ In order to save the Request Module, find refer [here](https://www.keyq.cloud/en
 
 ### Execution of the Lambda function 1
 
-**NOTE** : The Lambda function execution role requires permission for Amazon Comprehend (**comprehend:DetectSentiment**) and Amazon DynamoDB (**dynamodb:PutItem**) to perform the execution. Refer to policy.json for the inline policy required to perform these actions.
+**NOTE** : The Lambda function execution role requires permission for Amazon Comprehend (**comprehend:DetectSentiment**) and Amazon DynamoDB (**dynamodb:PutItem**) to perform the execution. Refer to [policy.json](Functions/policy.json) for the inline policy required to perform these actions.
 
 This Lambda function needs to be executed on a regular basis in order to store the news headline. Hence, you can make use of the **EventBridge** to create a [rule](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-events-rule.html#cfn-events-rule-scheduleexpression) to execute the function on a scheduled time interval.
 
