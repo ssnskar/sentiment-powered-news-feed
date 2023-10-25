@@ -18,21 +18,31 @@ The primary objective of the "Sentiment-Powered News Feed" project is to revolut
 
 ## Architecture
 
-![NewDiagran](https://github.com/ssnskar/sentiment-powered-news-feed/assets/89893005/291b4a66-af66-4472-82ec-e802ac1079c6)
+![Architecture](https://github.com/ssnskar/sentiment-powered-news-feed/assets/89893005/9e61fb29-485b-4929-926b-f9f241c3af3c)
+
 
 [News API](https://newsapi.org/) is a simple, easy-to-use REST API that returns JSON search results for current and historic news articles published by over 80,000 worldwide sources. 
 
-## Prerequisites
+## Deployment
 
-- AWS account
-- Python 3.11
-- Requests Package as Layer
+In order to use the application, you can create a Cloudformation stack using the [template.yaml](). In order to execute it using AWS CLI, make use of the below commands. Run the first command to launch the AWS CloudFormation template. The second command will wait, until the AWS CloudFormation stack was launched successfuly and ready to use. Alternatively, you can also open your CloudFormation console and watch the resource creation process.
+
+```
+aws cloudformation create-stack \
+    --stack-name sentiment-powered-news-feed \
+    --template-body file://template.yaml
+
+aws cloudformation wait stack-create-complete \
+    --stack-name sentiment-powered-news-feed
+```
 
 ## Instructions
 
 ### Get your API KEY from NEWS API
 
 You will need to log in [News API](https://newsapi.org/) to get your personalised API Key. This key will be used in the Lambda function 1 to extract the news headlines.
+
+---
 
 ### Creation of DynamoDB Table
 
@@ -41,8 +51,6 @@ Here,
 
 - PARTITION KEY : sentiment (String)
 - SORT KEY : timestamp (String)
-
-You can refer to the [DynamoDB.yml](Templates/DynamoDB.yml) for the Clouformation script of the same.
 
 AWS CLI [command](https://docs.aws.amazon.com/cli/latest/reference/dynamodb/create-table.html) for the table creation :
 
@@ -54,6 +62,8 @@ aws dynamodb create-table \
     --billing-mode PAY_PER_REQUEST
 ```
 
+---
+
 ### Creation of the Lambda function 1
 
 This function is responsible for extracting the current news using the **NEWS API**, calls the **Amazon Comprehend** to determine the sentiments of the news and categorize them in three categories : Positive, Negative and Neutral. Finally this Lambda function stores this data in a **DynamoDB** table.
@@ -62,17 +72,51 @@ The function uses Python 3.11 runtime and calls the various AWS services using [
 
 The function code is available at [**here**](Functions/DeriveNews.py).
 
-**NOTE** : This function requires **REQUESTS** module to work. Therefore, make sure to add the Request module as a lambda Layer.
+**NOTE** : This function requires **REQUESTS** module to work. The Requests module zip file can found over [here](Functions/Requests.zip). Make sure to upload the same on an S3 Bucket.
 
-In order to save the Request Module, find refer [here](https://www.keyq.cloud/en/blog/creating-an-aws-lambda-layer-for-python-requests-module). To create a Lambda layer using the zip file, refer [here](https://docs.aws.amazon.com/lambda/latest/dg/creating-deleting-layers.html#layers-create).
+---
 
 ### Execution of the Lambda function 1
 
-**NOTE** : The Lambda function execution role requires permission for Amazon Comprehend (**comprehend:DetectSentiment**) and Amazon DynamoDB (**dynamodb:PutItem**) to perform the execution. Refer to [policy.json](Functions/policy.json) for the inline policy required to perform these actions.
+**NOTE** : The Lambda function execution role requires permission for Amazon Comprehend (**comprehend:DetectSentiment**) and Amazon DynamoDB (**dynamodb:PutItem**) to perform the execution. Refer to [policy.json](Functions/policy1.json) for the inline policy required to perform these actions.
 
 This Lambda function needs to be executed on a regular basis in order to store the news headline. Hence, you can make use of the **EventBridge** to create a [rule](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-events-rule.html#cfn-events-rule-scheduleexpression) to execute the function on a scheduled time interval.
 
-### Creation of API Gateway
+---
 
+### Creation of REST API Gateway
+
+The client/user will be making a `POST` request to the API endpoint with the body element declaring the sentiment.
+
+```
+{
+    "sentiment" : "POSITIVE"
+}
+```
+
+---
 
 ### Creation of the Lambda function 2
+
+This will be the backend Lambda function for REST API which will be querying the DynamoDB table to extract the news based on input sentiment.
+
+The function code is available at [**here**](Functions/BackendLambdaToExtractNews.py).
+
+**NOTE** : The Lambda function execution role requires permission for Amazon DynamoDB (**dynamodb:Query**) to perform the query the table. Refer to [policy2.json](Functions/policy2.json) for the inline policy required to perform this action.
+
+## Testing
+
+In order to test the functionality of this application, we can make use of [POSTMAN](https://www.postman.com/).
+
+We will be making a `POST` request to the invoke URL of the API. Further, we will be adding the sentiment parameter in the body section to extract the news based on this parameter.
+
+<img width="1350" alt="Postman" src="https://github.com/ssnskar/sentiment-powered-news-feed/assets/89893005/ac9aeb27-e475-41b8-a417-d30afca62a28">
+
+## Cleanup
+
+Please ensure to perform the cleanup command after the completion to avoid potentially unwanted costs.
+
+```
+aws cloudformation delete-stack \
+    --stack-name sentiment-powered-news-feed
+```
