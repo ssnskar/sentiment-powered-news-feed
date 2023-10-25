@@ -60,7 +60,7 @@ This function is responsible for extracting the current news using the **NEWS AP
 
 The function uses Python 3.11 runtime and calls the various AWS services using [**Boto3**](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html).
 
-The function code is available at [**here**](Functions/DeriveNews.py)
+The function code is available at [**here**](Functions/DeriveNews.py).
 
 **NOTE** : This function requires **REQUESTS** module to work. Therefore, make sure to add the Request module as a lambda Layer.
 
@@ -73,4 +73,6 @@ In order to save the Request Module, find refer [here](https://www.keyq.cloud/en
 This Lambda function needs to be executed on a regular basis in order to store the news headline. Hence, you can make use of the **EventBridge** to create a [rule](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-events-rule.html#cfn-events-rule-scheduleexpression) to execute the function on a scheduled time interval.
 
 ### Creation of API Gateway
+
+
 ### Creation of the Lambda function 2
