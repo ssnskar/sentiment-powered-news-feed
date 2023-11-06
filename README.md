@@ -18,7 +18,7 @@ The primary objective of the "Sentiment-Powered News Feed" project is to revolut
 
 ## Architecture
 
-![Architecture](https://github.com/ssnskar/sentiment-powered-news-feed/assets/89893005/9e61fb29-485b-4929-926b-f9f241c3af3c)
+![Architecture](https://github.com/ssnskar/sentiment-powered-news-feed/blob/main/Architecture.png)
 
 
 [News API](https://newsapi.org/) is a simple, easy-to-use REST API that returns JSON search results for current and historic news articles published by over 80,000 worldwide sources. 
